@@ -28,8 +28,7 @@
             <p class="slogan">Перевірте свої знання!</p>
         </div>
         <div class="header-right">
-            <div id="clock" class="clock"></div>
-            <div id="date" class="date"></div>
+            <div id="subscribers" class="subscribers"></div>
             <a href="https://www.youtube.com/@ЗнанняДляВсіхТак?sub_confirmation=1" target="_blank" class="subscribe-btn">Підписатися</a>
         </div>
     </header>
@@ -63,6 +62,17 @@
             <p><a href="mailto:znanniadliavsikh@gmail.com">znanniadliavsikh@gmail.com</a></p>
         </div>
         <div class="footer-center">
+            <button id="categories-btn">Категорії</button>
+            <ul id="categories-list" style="display: none;">
+                <li><a href="category.html?category=Географія">Географія</a></li>
+                <li><a href="category.html?category=Історія">Історія</a></li>
+                <li><a href="category.html?category=Біблія">Біблія</a></li>
+                <li><a href="category.html?category=Україна">Україна</a></li>
+                <li><a href="category.html?category=Загальні знання">Загальні знання</a></li>
+                <li><a href="category.html?category=Логіка">Логіка</a></li>
+                <li><a href="category.html?category=Що зайве">Що зайве</a></li>
+                <li><a href="category.html?category=Не програєш">Не програєш</a></li>
+            </ul>
             <div class="footer-links">
                 <a href="about.html">Про нас</a>
                 <a href="contact.html">Контакти</a>
@@ -77,14 +87,6 @@
             <p>© 2025 Знання для всіх</p>
         </div>
     </footer>
-    <script>
-        function updateTime() {
-            const now = new Date();
-            document.getElementById('clock').textContent = now.toLocaleTimeString('uk-UA');
-            document.getElementById('date').textContent = now.toLocaleDateString('uk-UA');
-        }
-        setInterval(updateTime, 1000);
-        updateTime();
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
