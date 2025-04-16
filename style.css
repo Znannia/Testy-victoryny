@@ -236,4 +236,184 @@ footer {
     width: 60px;
     height: auto;
     border-radius: 4px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0,
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.footer-center {
+    text-align: center;
+}
+
+#categories-btn {
+    background-color: #ffcc00;
+    color: #000000;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 18px;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+#categories-btn:hover {
+    background-color: #e6b800;
+}
+
+#categories-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    background-color: #145252;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+#categories-list li {
+    padding: 10px;
+}
+
+#categories-list li a {
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+#categories-list li a:hover {
+    color: #ffcc00;
+}
+
+.footer-links {
+    margin-top: 10px;
+}
+
+.footer-links a {
+    color: #ffffff;
+    text-decoration: none;
+    margin: 0 10px;
+    font-size: 16px;
+}
+
+.footer-links a:hover {
+    color: #ffcc00;
+}
+
+.footer-right {
+    text-align: right;
+}
+
+.footer-logo {
+    width: 50px;
+    height: auto;
+    border-radius: 50%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.footer-right p {
+    margin: 5px 0;
+}
+
+.loading::before {
+    content: 'Завантаження...';
+    display: block;
+    text-align: center;
+    color: #ffff00;
+    font-size: 18px;
+    margin: 20px 0;
+}
+
+.about, .contact, .collaboration, .privacy {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.about h2, .contact h2, .collaboration h2, .privacy h2 {
+    color: #ffff00;
+    text-align: center;
+    font-size: 28px;
+}
+
+.about-text, .contact-text, .collaboration-text, .privacy-text {
+    background-color: #145252;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.about-text p, .contact-text p, .collaboration-text p, .privacy-text p {
+    margin: 10px 0;
+    line-height: 1.6;
+}
+
+.about-text a, .contact-text a, .collaboration-text a, .privacy-text a {
+    color: #ffcc00;
+    text-decoration: none;
+}
+
+.about-text a:hover, .contact-text a:hover, .collaboration-text a:hover, .privacy-text a:hover {
+    color: #e6b800;
+}
+
+.category-description {
+    max-width: 800px;
+    margin: 0 auto 20px;
+    background-color: #145252;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.category-description p {
+    margin: 10px 0;
+    line-height: 1.6;
+}
+
+@media (max-width: 600px) {
+    header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .header-right {
+        text-align: center;
+    }
+
+    .subscribe-btn {
+        margin: 10px auto;
+    }
+
+    h1 {
+        font-size: 36px;
+    }
+
+    .welcome-text {
+        font-size: 16px;
+    }
+
+    .subtitle {
+        font-size: 18px;
+    }
+
+    .slogan {
+        font-size: 16px;
+    }
+
+    .category-btn {
+        padding: 10px 15px;
+        font-size: 16px;
+    }
+
+    footer {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .footer-left, .footer-right {
+        align-items: center;
+        text-align: center;
+    }
+
+    .footer-right {
+        margin-top: 10px;
+    }
+}
