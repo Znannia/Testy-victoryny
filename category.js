@@ -1,10 +1,11 @@
 // Масив API-ключів для ротації
 const API_KEYS = [
-    'AIzaSyBIsnxOgHVW7AbYsYLZ6yMUF8f3PZFQFqc',
-    // Додайте тут резервний ключ, якщо створите новий у Google Cloud Console
-    // 'AIzaSyANIlHucfoyt3cMP5d06cV4uQX3Xx-XPLE',
+    'AIzaSyCMkqckTDk8jps-42J3bWqUswr3VGenYIo',
+    'AIzaSyCMkqckTDk8jps-42J3bWqUswr3VGenYIo',
 ];
 let currentKeyIndex = 0;
+
+const CHANNEL_ID = 'UC0usNaN5iwML35qPxASBDWQ';
 
 // Описи для категорій
 const categoryDescriptions = {
@@ -79,7 +80,7 @@ async function fetchWithKey(url) {
         if (!response.ok && (response.status === 403 || response.status === 429)) {
             console.warn(`Помилка ${response.status} для ключа ${currentKeyIndex}. Спробуємо наступний ключ.`);
             currentKeyIndex = (currentKeyIndex + 1) % API_KEYS.length;
-            return fetchWithKey(url); // Спробувати з наступним ключем
+            return fetchWithKey(url);
         }
         return response;
     } catch (error) {
@@ -87,6 +88,45 @@ async function fetchWithKey(url) {
         throw error;
     }
 }
+
+// Отримання кількості підписників
+async function fetchSubscribers() {
+    const subscribersDiv = document.getElementById('subscribers');
+    const cacheKey = 'subscribersCount';
+    const cacheTimeKey = 'subscribersTime';
+    const cacheDuration = 24 * 60 * 60 * 1000; // 24 години
+    const now = new Date();
+    const currentTime = now.getTime();
+    const hours = now.getHours();
+
+    // Перевірка, чи о 17:00
+    const shouldUpdate = hours === 17;
+    const cachedSubscribers = localStorage.getItem(cacheKey);
+    const cachedTime = localStorage.getItem(cacheTimeKey);
+
+    if (cachedSubscribers && cachedTime && currentTime - cachedTime < cacheDuration && !shouldUpdate) {
+        subscribersDiv.textContent = `Нас уже майже ${cachedSubscribers}`;
+        return;
+    }
+
+    try {
+        const response = await fetchWithKey(
+            `https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${CHANNEL_ID}`
+        );
+        if (!response.ok) {
+            throw new Error('Не вдалося отримати дані про підписників');
+        }
+        const data = await response.json();
+        const subscriberCount = data.items[0].statistics.subscriberCount;
+        localStorage.setItem(cacheKey, subscriberCount);
+        localStorage.setItem(cacheTimeKey, currentTime.toString());
+        subscribersDiv.textContent = `Нас уже майже ${subscriberCount}`;
+    } catch (error) {
+        console.error('Помилка завантаження підписників:', error);
+        subscribersDiv.textContent = 'Помилка завантаження підписників';
+    }
+}
+fetchSubscribers();
 
 // Функція для фільтрації Shorts
 async function filterNonShorts(videoIds) {
@@ -103,7 +143,7 @@ async function filterNonShorts(videoIds) {
     );
     if (!response.ok) {
         console.error('Помилка API:', response.status, response.statusText);
-        return videoIds; // Повертаємо всі ID, якщо не вдалося перевірити тривалість
+        return videoIds;
     }
     const data = await response.json();
     const nonShorts = [];
@@ -226,6 +266,12 @@ async function fetchCategoryVideos() {
         videosDiv.classList.remove('loading');
     }
 }
+
+// Показ/приховування списку категорій у футері
+document.getElementById('categories-btn').addEventListener('click', () => {
+    const list = document.getElementById('categories-list');
+    list.style.display = list.style.display === 'none' ? 'block' : 'none';
+});
 
 // Запускаємо завантаження
 fetchCategoryVideos();
