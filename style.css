@@ -43,7 +43,7 @@ header::before {
 .logo img {
     width: 50px;
     height: auto;
-    border: none;
+    border: 2px solid #FFD700;
     border-radius: 50%;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
@@ -99,11 +99,14 @@ h1 a {
     font-size: 20px;
     color: #ffff00;
     margin: 5px 0;
-    text-align: center;
 }
 
 .header-right {
     text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
 }
 
 .subscribers {
@@ -111,17 +114,30 @@ h1 a {
     color: #ffff00;
     font-weight: bold;
     margin-bottom: 10px;
+    text-align: center;
+}
+
+.subscribers-count {
+    font-size: 28px;
+    background: linear-gradient(to right, #FFD700, #FF4500);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    display: block;
 }
 
 .subscribe-btn {
     background-color: #ff0000;
     color: #ffffff;
-    padding: 10px 20px;
+    padding: 8px 16px;
     text-decoration: none;
     border-radius: 4px;
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     margin-top: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    width: fit-content;
 }
 
 .divider {
@@ -169,7 +185,7 @@ h1 a {
     gap: 20px;
 }
 
-#latest-videos div, #random-videos div, #category-videos div {
+.video-item {
     text-align: center;
     border: 2px solid #1a3c34;
     padding: 10px;
@@ -201,9 +217,123 @@ h1 a {
     border-radius: 5px;
 }
 
-#latest-videos p, #random-videos p, #category-videos p {
+.video-title {
     color: #ffffff;
     margin: 5px 0;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.video-title:hover {
+    color: #ffcc00;
+}
+
+.video-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px 0;
+}
+
+.comment-btn {
+    background-color: #28a745;
+    color: #ffffff;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.comment-btn:hover {
+    background-color: #218838;
+}
+
+.like-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.heart {
+    font-size: 20px;
+    color: white;
+    cursor: pointer;
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+}
+
+.heart.liked {
+    color: red;
+}
+
+.like-count {
+    font-size: 14px;
+    color: #ffffff;
+}
+
+.more-btn {
+    background-color: #ffcc00;
+    color: #000000;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.more-btn:hover {
+    background-color: #e6b800;
+}
+
+.comment-box {
+    margin-top: 10px;
+    display: none;
+}
+
+.comment-box textarea {
+    width: 100%;
+    max-width: 280px;
+    padding: 10px;
+    border-radius: 4px;
+    border: none;
+    background-color: #ffffff;
+    color: #000000;
+    font-size: 14px;
+    resize: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.submit-comment {
+    background-color: #28a745;
+    color: #ffffff;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.submit-comment:hover {
+    background-color: #218838;
+}
+
+.description-box {
+    margin-top: 10px;
+    background-color: #145252;
+    padding: 10px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    display: none;
+}
+
+.description-box p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
 }
 
 .new {
@@ -226,6 +356,15 @@ footer {
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
+}
+
+.footer-left a {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.footer-left a:hover {
+    color: #ffcc00;
 }
 
 .footer-youtube-icon {
@@ -368,6 +507,30 @@ footer {
     line-height: 1.6;
 }
 
+@media (max-width: 900px) {
+    .video-actions {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .comment-btn, .more-btn {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    .heart {
+        font-size: 18px;
+    }
+
+    .like-count {
+        font-size: 12px;
+    }
+
+    .comment-box textarea {
+        max-width: 260px;
+    }
+}
+
 @media (max-width: 600px) {
     header {
         flex-direction: column;
@@ -375,6 +538,7 @@ footer {
     }
 
     .header-right {
+        align-items: center;
         text-align: center;
     }
 
@@ -398,9 +562,32 @@ footer {
         font-size: 16px;
     }
 
+    .subscribers {
+        font-size: 16px;
+    }
+
+    .subscribers-count {
+        font-size: 24px;
+    }
+
     .category-btn {
         padding: 10px 15px;
         font-size: 16px;
+    }
+
+    .video-actions {
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .comment-btn, .more-btn {
+        width: 100%;
+        max-width: 200px;
+    }
+
+    .comment-box textarea {
+        max-width: 100%;
     }
 
     footer {
