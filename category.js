@@ -105,7 +105,7 @@ async function fetchSubscribers() {
     const cachedTime = localStorage.getItem(cacheTimeKey);
 
     if (cachedSubscribers && cachedTime && currentTime - cachedTime < cacheDuration && !shouldUpdate) {
-        subscribersDiv.textContent = `Нас уже майже ${cachedSubscribers}`;
+        subscribersDiv.innerHTML = `Нас уже майже<br><span class="subscribers-count">${cachedSubscribers}</span>`;
         return;
     }
 
@@ -120,10 +120,10 @@ async function fetchSubscribers() {
         const subscriberCount = data.items[0].statistics.subscriberCount;
         localStorage.setItem(cacheKey, subscriberCount);
         localStorage.setItem(cacheTimeKey, currentTime.toString());
-        subscribersDiv.textContent = `Нас уже майже ${subscriberCount}`;
+        subscribersDiv.innerHTML = `Нас уже майже<br><span class="subscribers-count">${subscriberCount}</span>`;
     } catch (error) {
         console.error('Помилка завантаження підписників:', error);
-        subscribersDiv.textContent = 'Помилка завантаження підписників';
+        subscribersDiv.innerHTML = 'Помилка завантаження підписників';
     }
 }
 fetchSubscribers();
@@ -167,29 +167,135 @@ function parseDuration(duration) {
     return hours * 3600 + minutes * 60 + seconds;
 }
 
+// Очищення опису
+function cleanDescription(description) {
+    return description
+        .replace(/#[\wА-Яа-я]+/g, '') // Видаляємо хештеги
+        .replace(/Вітаємо на каналі "Знання для всіх"/gi, '') // Видаляємо фразу
+        .trim();
+}
+
 // Рендеринг відео
-function renderVideos(videos, container) {
-    videos.forEach((video) => {
+async function renderVideos(videos, container) {
+    for (const video of videos) {
         const videoId = video.snippet.resourceId.videoId;
         const title = video.snippet.title;
         const thumbnail = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+
+        // Завантажуємо опис відео
+        let description = '';
+        try {
+            const response = await fetchWithKey(
+                `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}`
+            );
+            if (response.ok) {
+                const data = await response.json();
+                description = cleanDescription(data.items[0].snippet.description);
+            }
+        } catch (error) {
+            console.error('Помилка завантаження опису:', error);
+        }
+
         const videoElement = document.createElement('div');
+        videoElement.className = 'video-item';
         videoElement.innerHTML = `
             <div class="video-container">
                 <img src="${thumbnail}" alt="${title}" class="thumbnail" data-video-id="${videoId}">
             </div>
-            <p>${title}</p>
+            <p class="video-title" data-video-id="${videoId}" data-youtube-url="https://www.youtube.com/watch?v=${videoId}">${title}</p>
+            <div class="video-actions">
+                <button class="comment-btn">Коментар</button>
+                <div class="like-container">
+                    <span class="heart" data-video-id="${videoId}">&#9825;</span>
+                    <span class="like-count" data-video-id="${videoId}">${localStorage.getItem(`likes_${videoId}`) || 0}</span>
+                </div>
+                <button class="more-btn" data-video-id="${videoId}">Більше</button>
+            </div>
+            <div class="comment-box" style="display: none;">
+                <textarea placeholder="Ваш коментар..." rows="4"></textarea>
+                <button class="submit-comment">Відправити</button>
+            </div>
+            <div class="description-box" style="display: none;" data-video-id="${videoId}">
+                <p>${description || 'Опис недоступний'}</p>
+            </div>
         `;
         container.appendChild(videoElement);
+    }
+
+    // Обробка кліків на назву
+    document.querySelectorAll('.video-title').forEach((title) => {
+        let isPlayerActive = false;
+        title.addEventListener('click', (e) => {
+            const videoId = e.target.getAttribute('data-video-id');
+            const youtubeUrl = e.target.getAttribute('data-youtube-url');
+            const container = e.target.parentElement.querySelector('.video-container');
+            if (!isPlayerActive) {
+                container.innerHTML = `
+                    <iframe src="https://www.youtube.com/embed/${videoId}?rel=0&autoplay=1" frameborder="0" allowfullscreen></iframe>
+                `;
+                isPlayerActive = true;
+            } else {
+                window.open(youtubeUrl, '_blank');
+            }
+        });
     });
 
-    document.querySelectorAll('.thumbnail').forEach((thumbnail) => {
-        thumbnail.addEventListener('click', (e) => {
-            const videoId = e.target.getAttribute('data-video-id');
-            const container = e.target.parentElement;
-            container.innerHTML = `
-                <iframe src="https://www.youtube.com/embed/${videoId}?rel=0&autoplay=1" frameborder="0" allowfullscreen></iframe>
-            `;
+    // Обробка коментарів
+    document.querySelectorAll('.comment-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const commentBox = btn.parentElement.nextElementSibling;
+            commentBox.style.display = commentBox.style.display === 'none' ? 'block' : 'none';
+        });
+    });
+
+    document.querySelectorAll('.submit-comment').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const textarea = btn.previousElementSibling;
+            if (textarea.value.trim()) {
+                alert('Коментар відправлено!'); // Тимчасово, можна замінити на реальну логіку
+                textarea.value = '';
+            }
+        });
+    });
+
+    // Обробка лайків
+    document.querySelectorAll('.heart').forEach((heart) => {
+        const videoId = heart.getAttribute('data-video-id');
+        if (localStorage.getItem(`liked_${videoId}`)) {
+            heart.style.color = 'red';
+            heart.innerHTML = '&#9829;';
+        }
+        heart.addEventListener('click', () => {
+            let likes = parseInt(localStorage.getItem(`likes_${videoId}`) || 0);
+            if (!localStorage.getItem(`liked_${videoId}`)) {
+                likes += 1;
+                heart.style.color = 'red';
+                heart.innerHTML = '&#9829;';
+                localStorage.setItem(`liked_${videoId}`, 'true');
+                localStorage.setItem(`likes_${videoId}`, likes);
+            } else {
+                likes -= 1;
+                heart.style.color = 'white';
+                heart.innerHTML = '&#9825;';
+                localStorage.removeItem(`liked_${videoId}`);
+                localStorage.setItem(`likes_${videoId}`, likes);
+            }
+            heart.nextElementSibling.textContent = likes;
+        });
+    });
+
+    // Обробка кнопки "Більше/Менше"
+    document.querySelectorAll('.more-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const videoId = btn.getAttribute('data-video-id');
+            const descriptionBox = btn.parentElement.nextElementSibling.nextElementSibling;
+            if (descriptionBox.style.display === 'none') {
+                descriptionBox.style.display = 'block';
+                btn.textContent = 'Менше';
+            } else {
+                descriptionBox.style.display = 'none';
+                btn.textContent = 'Більше';
+            }
         });
     });
 }
