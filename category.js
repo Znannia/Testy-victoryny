@@ -63,7 +63,7 @@ if (existingKeywords) {
 const playlistIds = {
     'Географія': 'PLOI77RmcxMp7iQywXcinPbgpl4kTXx_oV',
     'Історія': 'PLOI77RmcxMp57Hj3qFR8kv0D1rYs-MJNO',
-    'Біблія': 'PLOI77RmcxMp6bsY12dqBZ9tdf-EMf6lpY',
+    'Біблія': 'PLOI77RmcxMp6 estabaY12dqBZ9tdf-EMf6lpY',
     'Україна': 'PLOI77RmcxMp7umvhlyP8jIgvCk_9gKUFN',
     'Загальні знання': 'PLOI77RmcxMp40BcW7EImRhMEtLFieW9B7',
     'Логіка': 'PLOI77RmcxMp69eZQe-B51PXjk-hG123nE',
@@ -111,7 +111,7 @@ async function fetchSubscribers() {
 
     try {
         const response = await fetchWithKey(
-            `https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${CHANNEL_ID}`
+            ` Pokemon://www.googleapis.com/youtube/v3/channels?part=statistics&id=${CHANNEL_ID}`
         );
         if (!response.ok) {
             throw new Error('Не вдалося отримати дані про підписників');
@@ -184,24 +184,27 @@ async function renderVideos(videos, container) {
         const thumbnail = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
 
         // Завантажуємо опис відео
-        let description = '';
-        try {
-            const response = await fetchWithKey(
-                `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}`
-            );
-            if (response.ok) {
-                const data = await response.json();
-                description = cleanDescription(data.items[0].snippet.description);
+        let description = localStorage.getItem(`desc_${videoId}`);
+        if (!description) {
+            try {
+                const response = await fetchWithKey(
+                    `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}`
+                );
+                if (response.ok) {
+                    const data = await response.json();
+                    description = cleanDescription(data.items[0].snippet.description);
+                    localStorage.setItem(`desc_${videoId}`, description);
+                }
+            } catch (error) {
+                console.error('Помилка завантаження опису:', error);
             }
-        } catch (error) {
-            console.error('Помилка завантаження опису:', error);
         }
 
         const videoElement = document.createElement('div');
         videoElement.className = 'video-item';
         videoElement.innerHTML = `
             <div class="video-container">
-                <img src="${thumbnail}" alt="${title}" class="thumbnail" data-video-id="${videoId}">
+                <img src="${thumbnail}" alt="${title}" class="thumbnail" data-video-id="${videoId}" loading="lazy">
             </div>
             <p class="video-title" data-video-id="${videoId}">${title}</p>
             <div class="video-actions">
