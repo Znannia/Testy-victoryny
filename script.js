@@ -110,24 +110,27 @@ async function renderVideos(videos, container, isLatest = false) {
         const thumbnail = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
 
         // Завантажуємо опис відео
-        let description = '';
-        try {
-            const response = await fetchWithKey(
-                `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}`
-            );
-            if (response.ok) {
-                const data = await response.json();
-                description = cleanDescription(data.items[0].snippet.description);
+        let description = localStorage.getItem(`desc_${videoId}`);
+        if (!description) {
+            try {
+                const response = await fetchWithKey(
+                    `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}`
+                );
+                if (response.ok) {
+                    const data = await response.json();
+                    description = cleanDescription(data.items[0].snippet.description);
+                    localStorage.setItem(`desc_${videoId}`, description);
+                }
+            } catch (error) {
+                console.error('Помилка завантаження опису:', error);
             }
-        } catch (error) {
-            console.error('Помилка завантаження опису:', error);
         }
 
         const videoElement = document.createElement('div');
         videoElement.className = 'video-item';
         videoElement.innerHTML = `
             <div class="video-container">
-                <img src="${thumbnail}" alt="${title}" class="thumbnail" data-video-id="${videoId}">
+                <img src="${thumbnail}" alt="${title}" class="thumbnail" data-video-id="${videoId}" loading="lazy">
             </div>
             <p class="video-title" data-video-id="${videoId}">${title}${isLatest ? ' <span class="new">Нове</span>' : ''}</p>
             <div class="video-actions">
@@ -335,7 +338,7 @@ async function fetchRandomVideos() {
 
     try {
         const width = window.innerWidth;
-        let videoCount = 15; // Залишаємо 15 відео (до 5 рядів), оскільки не перевантажує
+        let videoCount = 15;
         if (width >= 600 && width < 900) {
             videoCount = 12;
         } else if (width < 600) {
