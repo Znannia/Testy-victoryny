@@ -563,63 +563,155 @@ footer {
 @media (max-width: 600px) {
     header {
         flex-direction: column;
-        text-align: center;
-        gap: 10px;
-    }
-
-    .header-right {
         align-items: center;
+        padding: 10px;
+        min-height: 220px;
+    }
+
+    .logo {
+        order: 2;
+        margin: 10px 0;
+    }
+
+    .logo img {
+        width: 40px;
+    }
+
+    .youtube-icon {
+        display: none;
+    }
+
+    .header-center {
+        order: 1;
         text-align: center;
-    }
-
-    .subscribe-btn {
-        margin: 10px auto;
-    }
-
-    h1 {
-        font-size: 36px;
     }
 
     .welcome-text {
-        font-size: 16px;
+        font-size: 14px;
+        margin: 5px 0;
+    }
+
+    h1 {
+        font-size: 32px;
+        margin: 5px 0;
     }
 
     .subtitle {
-        font-size: 18px;
+        font-size: 14px;
+        padding: 3px 6px;
+        margin: 5px 0;
     }
 
     .slogan {
-        font-size: 16px;
+        font-size: 14px;
+        margin: 5px 0;
+    }
+
+    .header-right {
+        order: 3;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 10px;
     }
 
     .subscribers {
-        font-size: 16px;
+        font-size: 14px;
+        margin: 0;
+        display: flex;
+        align-items: center;
     }
 
     .subscribers-count {
-        font-size: 24px;
+        font-size: 18px;
+        margin: 0 5px;
+    }
+
+    .subscribe-btn {
+        padding: 6px 12px;
+        font-size: 14px;
+        margin: 0;
+    }
+
+    .header-right::before {
+        content: '';
+        background: url('logo.png') no-repeat center;
+        background-size: 30px;
+        width: 30px;
+        height: 30px;
+        display: inline-block;
+    }
+
+    .category-buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        padding: 0 10px;
+        margin: 10px 0;
+        min-height: 180px;
     }
 
     .category-btn {
-        padding: 10px 15px;
-        font-size: 16px;
+        width: 100%;
+        padding: 12px;
+        font-size: 20px;
+        font-weight: 700;
+        text-align: center;
+        border-radius: 5px;
+        min-height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
+
+    .category-btn:nth-child(1) { order: 1; } /* Географія */
+    .category-btn:nth-child(2) { order: 2; } /* Історія */
+    .category-btn:nth-child(4) { order: 3; } /* Україна */
+    .category-btn:nth-child(3) { order: 4; } /* Біблія */
+    .category-btn:nth-child(5) { order: 5; } /* Загальні */
+    .category-btn:nth-child(6) { order: 6; } /* Логіка */
+    .category-btn:nth-child(7) { order: 7; } /* Що зайве */
+    .category-btn:nth-child(8) { order: 8; } /* Різне */
 
     .video-actions {
-        flex-direction: column;
+        flex-direction: row;
+        justify-content: space-between;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
+        min-height: 50px;
+        padding: 0 5px;
     }
 
-    .comment-btn, .more-btn {
-        width: 100%;
-        max-width: 200px;
-        padding: 8px 12px;
-        font-size: 14px;
+    .comment-btn {
+        padding: 10px;
+        font-size: 18px;
+        font-weight: bold;
+        flex: 1;
+        text-align: center;
+    }
+
+    .like-container {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        gap: 5px;
     }
 
     .heart {
-        font-size: 20px;
+        font-size: 32px;
+    }
+
+    .like-count {
+        font-size: 14px;
+    }
+
+    .more-btn {
+        padding: 10px;
+        font-size: 18px;
+        font-weight: bold;
+        flex: 1;
+        text-align: center;
     }
 
     .comment-box textarea {
@@ -642,5 +734,9 @@ footer {
 
     .footer-right {
         margin-top: 10px;
+    }
+
+    .youtube-icon img, .footer-youtube-icon img {
+        border: none;
     }
 }
