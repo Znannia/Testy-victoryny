@@ -404,15 +404,6 @@ footer {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
-.footer-email {
-    color: #ffffff;
-    font-size: 16px;
-}
-
-.footer-email:hover {
-    color: #ffcc00;
-}
-
 .footer-center {
     text-align: center;
 }
@@ -549,12 +540,12 @@ footer {
         padding: 10px;
         flex-direction: column;
         align-items: center;
-        min-height: 160px;
+        min-height: 120px;
     }
 
     .logo {
         order: 2;
-        margin: 0 10px;
+        margin: 5px 0;
     }
 
     .logo img {
@@ -562,13 +553,17 @@ footer {
     }
 
     .youtube-icon {
-        display: none;
+        display: none; /* Прибираємо іконку YouTube */
     }
 
     .header-center {
         order: 1;
-        text-align: center;
-        margin-bottom: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        flex: 0 0 auto;
+        margin-right: 5px;
+        text-align: left;
     }
 
     .welcome-text {
@@ -577,7 +572,7 @@ footer {
     }
 
     h1 {
-        font-size: 32px;
+        font-size: 24px;
         line-height: 1.2;
     }
 
@@ -590,23 +585,22 @@ footer {
     .slogan {
         font-size: 14px;
         margin: 5px 0;
+        text-align: left;
     }
 
     .header-right {
         order: 3;
         display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
+        flex-direction: column;
+        align-items: flex-end;
+        flex: 0 0 auto;
+        margin-left: 5px;
     }
 
     .subscribers {
         font-size: 14px;
         margin: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+        text-align: right;
     }
 
     .subscribers-count {
@@ -617,7 +611,8 @@ footer {
     .subscribe-btn {
         padding: 6px 12px;
         font-size: 14px;
-        margin: 0;
+        margin-top: 5px;
+        width: auto;
     }
 
     .category-buttons {
@@ -626,7 +621,6 @@ footer {
         gap: 10px;
         padding: 0 10px;
         margin: 10px 0;
-        min-height: 200px; /* Запобігає CLS */
     }
 
     .category-btn {
