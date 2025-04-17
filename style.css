@@ -540,12 +540,12 @@ footer {
         padding: 10px;
         flex-direction: column;
         align-items: center;
-        min-height: 120px;
+        min-height: 160px; /* Запобігає CLS */
     }
 
     .logo {
         order: 2;
-        margin: 5px 0;
+        margin: 0 10px;
     }
 
     .logo img {
@@ -553,17 +553,13 @@ footer {
     }
 
     .youtube-icon {
-        display: none; /* Прибираємо іконку YouTube */
+        display: none; /* Без іконки YouTube */
     }
 
     .header-center {
         order: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        flex: 0 0 auto;
-        margin-right: 5px;
-        text-align: left;
+        text-align: center;
+        margin-bottom: 10px;
     }
 
     .welcome-text {
@@ -572,7 +568,7 @@ footer {
     }
 
     h1 {
-        font-size: 24px;
+        font-size: 32px; /* Збільшено */
         line-height: 1.2;
     }
 
@@ -585,22 +581,23 @@ footer {
     .slogan {
         font-size: 14px;
         margin: 5px 0;
-        text-align: left;
     }
 
     .header-right {
         order: 3;
         display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        flex: 0 0 auto;
-        margin-left: 5px;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
     }
 
     .subscribers {
         font-size: 14px;
         margin: 0;
-        text-align: right;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
 
     .subscribers-count {
@@ -611,8 +608,7 @@ footer {
     .subscribe-btn {
         padding: 6px 12px;
         font-size: 14px;
-        margin-top: 5px;
-        width: auto;
+        margin: 0;
     }
 
     .category-buttons {
