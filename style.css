@@ -583,7 +583,7 @@ footer {
     }
 
     h1 {
-        font-size: 40px; /* Збільшено шрифт для "ЗНАННЯ ДЛЯ ВСІХ" */
+        font-size: 28px; /* Зменшено, щоб "ЗНАННЯ ДЛЯ ВСІХ" влізло в один рядок */
         margin: 5px 0;
     }
 
@@ -594,7 +594,7 @@ footer {
     }
 
     .slogan {
-        font-size: 14px;
+        font-size: 16px; /* Збільшено шрифт для "Перевірте свої знання" */
         margin: 5px 0;
     }
 
@@ -602,7 +602,7 @@ footer {
         order: 3;
         display: flex;
         align-items: center;
-        justify-content: space-between; /* Розтягує елементи на всю ширину */
+        justify-content: space-between; /* Розподіляє елементи: зліва текст, справа кнопка */
         width: 100%; /* Займає всю ширину */
         margin-top: 10px;
         padding: 0 5px;
@@ -613,11 +613,11 @@ footer {
         margin: 0;
         color: #ffff00;
         flex: 1; /* Дозволяє займати доступний простір */
-        text-align: left; /* Текст ліворуч */
+        text-align: left; /* "Нас уже 28100" зліва */
     }
 
     .subscribers::before {
-        content: 'Нас уже 28100'; /* Оновлено текст у одному рядку */
+        content: 'Нас уже 28100'; /* Лише "Нас уже 28100" */
     }
 
     .subscribers-count {
@@ -642,8 +642,11 @@ footer {
         color: #ffffff;
         border-radius: 4px;
         text-decoration: none;
-        flex: 1; /* Дозволяє займати доступний простір */
-        text-align: right; /* Кнопка праворуч */
+        flex: 1; /* Розтягує кнопку */
+        text-align: center; /* Текст "Підписатися" відцентровано */
+        display: flex;
+        justify-content: center;
+        align-items: center; /* Точне центрування тексту в кнопці */
     }
 
     .category-buttons {
