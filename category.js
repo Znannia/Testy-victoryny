@@ -63,7 +63,7 @@ if (existingKeywords) {
 const playlistIds = {
     'Географія': 'PLOI77RmcxMp7iQywXcinPbgpl4kTXx_oV',
     'Історія': 'PLOI77RmcxMp57Hj3qFR8kv0D1rYs-MJNO',
-    'Біблія': 'PLOI77RmcxMp6 estabaY12dqBZ9tdf-EMf6lpY',
+    'Біблія': 'PLOI77RmcxMp6bsY12dqBZ9tdf-EMf6lpY',
     'Україна': 'PLOI77RmcxMp7umvhlyP8jIgvCk_9gKUFN',
     'Загальні знання': 'PLOI77RmcxMp40BcW7EImRhMEtLFieW9B7',
     'Логіка': 'PLOI77RmcxMp69eZQe-B51PXjk-hG123nE',
@@ -111,7 +111,7 @@ async function fetchSubscribers() {
 
     try {
         const response = await fetchWithKey(
-            ` Pokemon://www.googleapis.com/youtube/v3/channels?part=statistics&id=${CHANNEL_ID}`
+            `https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${CHANNEL_ID}`
         );
         if (!response.ok) {
             throw new Error('Не вдалося отримати дані про підписників');
@@ -177,40 +177,36 @@ function cleanDescription(description) {
 
 // Рендеринг відео
 async function renderVideos(videos, container) {
-    container.innerHTML = ''; // Очищаємо контейнер
     for (const video of videos) {
         const videoId = video.snippet.resourceId.videoId;
         const title = video.snippet.title;
         const thumbnail = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
 
         // Завантажуємо опис відео
-        let description = localStorage.getItem(`desc_${videoId}`);
-        if (!description) {
-            try {
-                const response = await fetchWithKey(
-                    `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}`
-                );
-                if (response.ok) {
-                    const data = await response.json();
-                    description = cleanDescription(data.items[0].snippet.description);
-                    localStorage.setItem(`desc_${videoId}`, description);
-                }
-            } catch (error) {
-                console.error('Помилка завантаження опису:', error);
+        let description = '';
+        try {
+            const response = await fetchWithKey(
+                `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}`
+            );
+            if (response.ok) {
+                const data = await response.json();
+                description = cleanDescription(data.items[0].snippet.description);
             }
+        } catch (error) {
+            console.error('Помилка завантаження опису:', error);
         }
 
         const videoElement = document.createElement('div');
         videoElement.className = 'video-item';
         videoElement.innerHTML = `
             <div class="video-container">
-                <img src="${thumbnail}" alt="${title}" class="thumbnail" data-video-id="${videoId}" loading="lazy">
+                <img src="${thumbnail}" alt="${title}" class="thumbnail" data-video-id="${videoId}">
             </div>
-            <p class="video-title" data-video-id="${videoId}">${title}</p>
+            <p class="video-title" data-video-id="${videoId}" data-youtube-url="https://www.youtube.com/watch?v=${videoId}">${title}</p>
             <div class="video-actions">
                 <button class="comment-btn">Коментар</button>
                 <div class="like-container">
-                    <span class="heart" data-video-id="${videoId}">♡</span>
+                    <span class="heart" data-video-id="${videoId}">&#9825;</span>
                     <span class="like-count" data-video-id="${videoId}">${localStorage.getItem(`likes_${videoId}`) || 0}</span>
                 </div>
                 <button class="more-btn" data-video-id="${videoId}">Більше</button>
@@ -218,84 +214,69 @@ async function renderVideos(videos, container) {
             <div class="comment-box" style="display: none;">
                 <textarea placeholder="Ваш коментар..." rows="4"></textarea>
                 <button class="submit-comment">Відправити</button>
-                <div class="comment-list"></div>
             </div>
             <div class="description-box" style="display: none;" data-video-id="${videoId}">
                 <p>${description || 'Опис недоступний'}</p>
             </div>
         `;
         container.appendChild(videoElement);
-
-        // Завантажуємо збережені коментарі
-        const commentList = videoElement.querySelector('.comment-list');
-        const savedComments = JSON.parse(localStorage.getItem(`comments_${videoId}`) || '[]');
-        savedComments.forEach((comment) => {
-            const commentElement = document.createElement('p');
-            commentElement.textContent = comment;
-            commentList.appendChild(commentElement);
-        });
     }
 
-    // Обробка кліків на назву та обкладинку
-    container.querySelectorAll('.video-title, .thumbnail').forEach((element) => {
+    // Обробка кліків на назву
+    document.querySelectorAll('.video-title').forEach((title) => {
         let isPlayerActive = false;
-        element.addEventListener('click', (e) => {
+        title.addEventListener('click', (e) => {
             const videoId = e.target.getAttribute('data-video-id');
-            const container = e.target.closest('.video-item').querySelector('.video-container');
+            const youtubeUrl = e.target.getAttribute('data-youtube-url');
+            const container = e.target.parentElement.querySelector('.video-container');
             if (!isPlayerActive) {
                 container.innerHTML = `
                     <iframe src="https://www.youtube.com/embed/${videoId}?rel=0&autoplay=1" frameborder="0" allowfullscreen></iframe>
                 `;
                 isPlayerActive = true;
+            } else {
+                window.open(youtubeUrl, '_blank');
             }
         });
     });
 
     // Обробка коментарів
-    container.querySelectorAll('.comment-btn').forEach((btn) => {
+    document.querySelectorAll('.comment-btn').forEach((btn) => {
         btn.addEventListener('click', () => {
             const commentBox = btn.parentElement.nextElementSibling;
             commentBox.style.display = commentBox.style.display === 'none' ? 'block' : 'none';
         });
     });
 
-    container.querySelectorAll('.submit-comment').forEach((btn) => {
+    document.querySelectorAll('.submit-comment').forEach((btn) => {
         btn.addEventListener('click', () => {
             const textarea = btn.previousElementSibling;
-            const videoId = btn.closest('.video-item').querySelector('.heart').getAttribute('data-video-id');
-            const commentList = btn.nextElementSibling;
             if (textarea.value.trim()) {
-                const commentElement = document.createElement('p');
-                commentElement.textContent = textarea.value.trim();
-                commentList.appendChild(commentElement);
-                // Зберігаємо коментар
-                const savedComments = JSON.parse(localStorage.getItem(`comments_${videoId}`) || '[]');
-                savedComments.push(textarea.value.trim());
-                localStorage.setItem(`comments_${videoId}`, JSON.stringify(savedComments));
+                alert('Коментар відправлено!'); // Тимчасово, можна замінити на реальну логіку
                 textarea.value = '';
             }
         });
     });
 
     // Обробка лайків
-    container.querySelectorAll('.heart').forEach((heart) => {
+    document.querySelectorAll('.heart').forEach((heart) => {
         const videoId = heart.getAttribute('data-video-id');
         if (localStorage.getItem(`liked_${videoId}`)) {
             heart.style.color = 'red';
-            heart.innerHTML = '♥';
+            heart.innerHTML = '&#9829;';
         }
         heart.addEventListener('click', () => {
             let likes = parseInt(localStorage.getItem(`likes_${videoId}`) || 0);
             if (!localStorage.getItem(`liked_${videoId}`)) {
                 likes += 1;
                 heart.style.color = 'red';
-                heart.innerHTML = '♥';
+                heart.innerHTML = '&#9829;';
                 localStorage.setItem(`liked_${videoId}`, 'true');
                 localStorage.setItem(`likes_${videoId}`, likes);
             } else {
                 likes -= 1;
                 heart.style.color = 'white';
-                heart.innerHTML = '♡';
+                heart.innerHTML = '&#9825;';
                 localStorage.removeItem(`liked_${videoId}`);
                 localStorage.setItem(`likes_${videoId}`, likes);
             }
@@ -304,7 +285,7 @@ async function renderVideos(videos, container) {
     });
 
     // Обробка кнопки "Більше/Менше"
-    container.querySelectorAll('.more-btn').forEach((btn) => {
+    document.querySelectorAll('.more-btn').forEach((btn) => {
         btn.addEventListener('click', () => {
             const videoId = btn.getAttribute('data-video-id');
             const descriptionBox = btn.parentElement.nextElementSibling.nextElementSibling;
@@ -340,7 +321,7 @@ async function fetchCategoryVideos() {
     if (cachedVideos && cachedTime && now - cachedTime < cacheDuration) {
         console.log('Використовуємо кешовані відео');
         const videos = JSON.parse(cachedVideos);
-        await renderVideos(videos, videosDiv);
+        renderVideos(videos, videosDiv);
         videosDiv.classList.remove('loading');
         return;
     }
@@ -382,7 +363,8 @@ async function fetchCategoryVideos() {
         localStorage.setItem(cacheKey, JSON.stringify(videos));
         localStorage.setItem(cacheTimeKey, now.toString());
 
-        await renderVideos(videos, videosDiv);
+        videosDiv.innerHTML = '';
+        renderVideos(videos, videosDiv);
     } catch (error) {
         console.error('Помилка завантаження відео:', error);
         videosDiv.innerHTML = '<p>Помилка завантаження відео. Спробуйте пізніше.</p>';
