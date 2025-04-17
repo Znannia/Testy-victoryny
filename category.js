@@ -1,4 +1,5 @@
-const API_KEYS = ['YOUR_API_KEY_1', 'YOUR_API_KEY_2']; // Замініть на свої ключі
+const API_KEYS = ['AIzaSyCMkqckTDk8jps-42J3bWqUswr3VGenYIo',
+    'AIzaSyCMkqckTDk8jps-42J3bWqUswr3VGenYIo',]; // Замініть на свої ключі
 let currentKeyIndex = 0;
 
 async function fetchWithKey(url) {
