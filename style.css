@@ -404,6 +404,15 @@ footer {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
+.footer-email {
+    color: #ffffff;
+    font-size: 16px;
+}
+
+.footer-email:hover {
+    color: #ffcc00;
+}
+
 .footer-center {
     text-align: center;
 }
@@ -540,7 +549,7 @@ footer {
         padding: 10px;
         flex-direction: column;
         align-items: center;
-        min-height: 160px; /* Запобігає CLS */
+        min-height: 160px;
     }
 
     .logo {
@@ -553,7 +562,7 @@ footer {
     }
 
     .youtube-icon {
-        display: none; /* Без іконки YouTube */
+        display: none;
     }
 
     .header-center {
@@ -568,7 +577,7 @@ footer {
     }
 
     h1 {
-        font-size: 32px; /* Збільшено */
+        font-size: 32px;
         line-height: 1.2;
     }
 
@@ -617,6 +626,7 @@ footer {
         gap: 10px;
         padding: 0 10px;
         margin: 10px 0;
+        min-height: 200px; /* Запобігає CLS */
     }
 
     .category-btn {
