@@ -583,7 +583,7 @@ footer {
     }
 
     h1 {
-        font-size: 32px;
+        font-size: 40px; /* Збільшено шрифт для "ЗНАННЯ ДЛЯ ВСІХ" */
         margin: 5px 0;
     }
 
@@ -602,30 +602,26 @@ footer {
         order: 3;
         display: flex;
         align-items: center;
-        justify-content: center;
-        gap: 10px;
+        justify-content: space-between; /* Розтягує елементи на всю ширину */
+        width: 100%; /* Займає всю ширину */
         margin-top: 10px;
+        padding: 0 5px;
     }
 
     .subscribers {
         font-size: 14px;
         margin: 0;
-        display: flex;
-        align-items: center;
+        color: #ffff00;
+        flex: 1; /* Дозволяє займати доступний простір */
+        text-align: left; /* Текст ліворуч */
     }
 
     .subscribers::before {
-        content: 'Нас уже 28 000!';
+        content: 'Нас уже 28100'; /* Оновлено текст у одному рядку */
     }
 
     .subscribers-count {
         display: none;
-    }
-
-    .subscribe-btn {
-        padding: 6px 12px;
-        font-size: 14px;
-        margin: 0;
     }
 
     .header-right::before {
@@ -635,6 +631,19 @@ footer {
         width: 30px;
         height: 30px;
         display: inline-block;
+        flex: 0 0 auto; /* Фіксований розмір для логотипу в центрі */
+    }
+
+    .subscribe-btn {
+        font-size: 14px;
+        padding: 6px 12px;
+        margin: 0;
+        background-color: #ff0000;
+        color: #ffffff;
+        border-radius: 4px;
+        text-decoration: none;
+        flex: 1; /* Дозволяє займати доступний простір */
+        text-align: right; /* Кнопка праворуч */
     }
 
     .category-buttons {
