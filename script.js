@@ -103,6 +103,7 @@ function cleanDescription(description) {
 
 // Рендеринг відео
 async function renderVideos(videos, container, isLatest = false) {
+    container.innerHTML = ''; // Очищаємо контейнер перед рендерингом
     for (const video of videos) {
         const videoId = isLatest ? video.id.videoId : video.snippet.resourceId.videoId;
         const title = video.snippet.title;
@@ -128,11 +129,11 @@ async function renderVideos(videos, container, isLatest = false) {
             <div class="video-container">
                 <img src="${thumbnail}" alt="${title}" class="thumbnail" data-video-id="${videoId}">
             </div>
-            <p class="video-title" data-video-id="${videoId}" data-youtube-url="https://www.youtube.com/watch?v=${videoId}">${title}${isLatest ? ' <span class="new">Нове</span>' : ''}</p>
+            <p class="video-title" data-video-id="${videoId}">${title}${isLatest ? ' <span class="new">Нове</span>' : ''}</p>
             <div class="video-actions">
                 <button class="comment-btn">Коментар</button>
                 <div class="like-container">
-                    <span class="heart" data-video-id="${videoId}">&#9825;</span>
+                    <span class="heart" data-video-id="${videoId}">♡</span>
                     <span class="like-count" data-video-id="${videoId}">${localStorage.getItem(`likes_${videoId}`) || 0}</span>
                 </div>
                 <button class="more-btn" data-video-id="${videoId}">Більше</button>
@@ -140,69 +141,84 @@ async function renderVideos(videos, container, isLatest = false) {
             <div class="comment-box" style="display: none;">
                 <textarea placeholder="Ваш коментар..." rows="4"></textarea>
                 <button class="submit-comment">Відправити</button>
+                <div class="comment-list"></div>
             </div>
             <div class="description-box" style="display: none;" data-video-id="${videoId}">
                 <p>${description || 'Опис недоступний'}</p>
             </div>
         `;
         container.appendChild(videoElement);
+
+        // Завантажуємо збережені коментарі
+        const commentList = videoElement.querySelector('.comment-list');
+        const savedComments = JSON.parse(localStorage.getItem(`comments_${videoId}`) || '[]');
+        savedComments.forEach((comment) => {
+            const commentElement = document.createElement('p');
+            commentElement.textContent = comment;
+            commentList.appendChild(commentElement);
+        });
     }
 
-    // Обробка кліків на назву
-    document.querySelectorAll('.video-title').forEach((title) => {
+    // Обробка кліків на назву та обкладинку
+    container.querySelectorAll('.video-title, .thumbnail').forEach((element) => {
         let isPlayerActive = false;
-        title.addEventListener('click', (e) => {
+        element.addEventListener('click', (e) => {
             const videoId = e.target.getAttribute('data-video-id');
-            const youtubeUrl = e.target.getAttribute('data-youtube-url');
-            const container = e.target.parentElement.querySelector('.video-container');
+            const container = e.target.closest('.video-item').querySelector('.video-container');
             if (!isPlayerActive) {
                 container.innerHTML = `
                     <iframe src="https://www.youtube.com/embed/${videoId}?rel=0&autoplay=1" frameborder="0" allowfullscreen></iframe>
                 `;
                 isPlayerActive = true;
-            } else {
-                window.open(youtubeUrl, '_blank');
             }
         });
     });
 
     // Обробка коментарів
-    document.querySelectorAll('.comment-btn').forEach((btn) => {
+    container.querySelectorAll('.comment-btn').forEach((btn) => {
         btn.addEventListener('click', () => {
             const commentBox = btn.parentElement.nextElementSibling;
             commentBox.style.display = commentBox.style.display === 'none' ? 'block' : 'none';
         });
     });
 
-    document.querySelectorAll('.submit-comment').forEach((btn) => {
+    container.querySelectorAll('.submit-comment').forEach((btn) => {
         btn.addEventListener('click', () => {
             const textarea = btn.previousElementSibling;
+            const videoId = btn.closest('.video-item').querySelector('.heart').getAttribute('data-video-id');
+            const commentList = btn.nextElementSibling;
             if (textarea.value.trim()) {
-                alert('Коментар відправлено!'); // Тимчасово, можна замінити на реальну логіку
+                const commentElement = document.createElement('p');
+                commentElement.textContent = textarea.value.trim();
+                commentList.appendChild(commentElement);
+                // Зберігаємо коментар
+                const savedComments = JSON.parse(localStorage.getItem(`comments_${videoId}`) || '[]');
+                savedComments.push(textarea.value.trim());
+                localStorage.setItem(`comments_${videoId}`, JSON.stringify(savedComments));
                 textarea.value = '';
             }
         });
     });
 
     // Обробка лайків
-    document.querySelectorAll('.heart').forEach((heart) => {
+    container.querySelectorAll('.heart').forEach((heart) => {
         const videoId = heart.getAttribute('data-video-id');
         if (localStorage.getItem(`liked_${videoId}`)) {
             heart.style.color = 'red';
-            heart.innerHTML = '&#9829;';
+            heart.innerHTML = '♥';
         }
         heart.addEventListener('click', () => {
             let likes = parseInt(localStorage.getItem(`likes_${videoId}`) || 0);
             if (!localStorage.getItem(`liked_${videoId}`)) {
                 likes += 1;
                 heart.style.color = 'red';
-                heart.innerHTML = '&#9829;';
+                heart.innerHTML = '♥';
                 localStorage.setItem(`liked_${videoId}`, 'true');
                 localStorage.setItem(`likes_${videoId}`, likes);
             } else {
                 likes -= 1;
                 heart.style.color = 'white';
-                heart.innerHTML = '&#9825;';
+                heart.innerHTML = '♡';
                 localStorage.removeItem(`liked_${videoId}`);
                 localStorage.setItem(`likes_${videoId}`, likes);
             }
@@ -211,7 +227,7 @@ async function renderVideos(videos, container, isLatest = false) {
     });
 
     // Обробка кнопки "Більше/Менше"
-    document.querySelectorAll('.more-btn').forEach((btn) => {
+    container.querySelectorAll('.more-btn').forEach((btn) => {
         btn.addEventListener('click', () => {
             const videoId = btn.getAttribute('data-video-id');
             const descriptionBox = btn.parentElement.nextElementSibling.nextElementSibling;
@@ -241,7 +257,7 @@ async function fetchLatestVideos() {
 
     if (cachedVideos && cachedTime && now - cachedTime < cacheDuration) {
         const videos = JSON.parse(cachedVideos);
-        renderVideos(videos, latestVideosDiv, true);
+        await renderVideos(videos, latestVideosDiv, true);
         latestVideosDiv.classList.remove('loading');
         return;
     }
@@ -275,7 +291,7 @@ async function fetchLatestVideos() {
         localStorage.setItem(cacheKey, JSON.stringify(videos));
         localStorage.setItem(cacheTimeKey, now.toString());
 
-        renderVideos(videos, latestVideosDiv, true);
+        await renderVideos(videos, latestVideosDiv, true);
     } catch (error) {
         console.error('Помилка завантаження найновіших відео:', error);
         latestVideosDiv.innerHTML = '<p>Помилка завантаження відео. Спробуйте пізніше.</p>';
@@ -312,18 +328,18 @@ async function fetchRandomVideos() {
 
     if (cachedVideos && cachedTime && now - cachedTime < cacheDuration) {
         const videos = JSON.parse(cachedVideos);
-        renderVideos(videos, randomVideosDiv);
+        await renderVideos(videos, randomVideosDiv);
         randomVideosDiv.classList.remove('loading');
         return;
     }
 
     try {
         const width = window.innerWidth;
-        let videoCount = 9;
+        let videoCount = 15; // Залишаємо 15 відео (до 5 рядів), оскільки не перевантажує
         if (width >= 600 && width < 900) {
             videoCount = 12;
-        } else if (width >= 900) {
-            videoCount = 15;
+        } else if (width < 600) {
+            videoCount = 9;
         }
 
         const videosToShow = [];
@@ -364,7 +380,7 @@ async function fetchRandomVideos() {
         localStorage.setItem(cacheKey, JSON.stringify(shuffledVideos));
         localStorage.setItem(cacheTimeKey, now.toString());
 
-        renderVideos(shuffledVideos, randomVideosDiv);
+        await renderVideos(shuffledVideos, randomVideosDiv);
     } catch (error) {
         console.error('Помилка завантаження випадкових відео:', error);
         randomVideosDiv.innerHTML = '<p>Помилка завантаження відео. Спробуйте пізніше.</p>';
