@@ -569,15 +569,6 @@ footer {
     }
 
     .logo {
-        order: 2;
-        margin: 10px 0;
-    }
-
-    .logo img {
-        width: 40px;
-    }
-
-    .youtube-icon {
         display: none;
     }
 
@@ -623,9 +614,12 @@ footer {
         align-items: center;
     }
 
+    .subscribers::before {
+        content: 'Нас уже 28 000!';
+    }
+
     .subscribers-count {
-        font-size: 18px;
-        margin: 0 5px;
+        display: none;
     }
 
     .subscribe-btn {
@@ -669,10 +663,10 @@ footer {
     .category-btn:nth-child(2) { order: 2; } /* Історія */
     .category-btn:nth-child(4) { order: 3; } /* Україна */
     .category-btn:nth-child(3) { order: 4; } /* Біблія */
-    .category-btn:nth-child(5) { order: 5; } /* Загальні */
+    .category-btn:nth-child(5) { order: 5; } /* Загальні знання */
     .category-btn:nth-child(6) { order: 6; } /* Логіка */
     .category-btn:nth-child(7) { order: 7; } /* Що зайве */
-    .category-btn:nth-child(8) { order: 8; } /* Різне */
+    .category-btn:nth-child(8) { order: 8; } /* Не програєш */
 
     .video-actions {
         flex-direction: row;
