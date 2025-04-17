@@ -3,10 +3,10 @@
         flex-direction: column;
         align-items: center;
         padding: 10px;
-        min-height: 220px;
+        min-height: 240px; /* Збільшено для великого шрифту */
     }
 
-    header .logo {
+    header .logo, header .logo * {
         display: none !important;
     }
 
@@ -26,9 +26,10 @@
     }
 
     h1 {
-        font-size: clamp(36px, 10vw, 40px);
+        font-size: clamp(40px, 12vw, 48px);
         margin: 5px 0;
         width: 100%;
+        line-height: 1.1;
     }
 
     .subtitle {
@@ -49,20 +50,21 @@
         justify-content: space-between;
         width: 100%;
         margin-top: 10px;
-        padding: 0 10px;
+        padding: 0 5px;
     }
 
     .subscribers {
         font-size: 14px;
-        margin: 0;
         color: #ffff00;
-        text-align: left;
         flex: 1;
+        text-align: left;
+        margin: 0;
     }
 
     .subscribers::before {
         content: 'Нас уже\n28000';
         white-space: pre;
+        display: block;
     }
 
     .subscribers-count {
@@ -81,14 +83,14 @@
 
     .subscribe-btn {
         font-size: 14px;
-        padding: 6px 12px;
+        padding: 6px 10px;
         margin: 0;
         background-color: #ff0000;
         color: #ffffff;
         border-radius: 4px;
         text-decoration: none;
-        text-align: right;
         flex: 1;
+        text-align: right;
     }
 
     .category-buttons {
