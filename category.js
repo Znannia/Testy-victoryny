@@ -1,5 +1,8 @@
-const API_KEYS = ['AIzaSyCMkqckTDk8jps-42J3bWqUswr3VGenYIo',
-    'AIzaSyCMkqckTDk8jps-42J3bWqUswr3VGenYIo',]; // Замініть на свої ключі
+// Масив API-ключів для ротації
+const API_KEYS = [
+    'AIzaSyCMkqckTDk8jps-42J3bWqUswr3VGenYIo',
+    'AIzaSyCMkqckTDk8jps-42J3bWqUswr3VGenYIo',
+];
 let currentKeyIndex = 0;
 
 async function fetchWithKey(url) {
