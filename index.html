@@ -27,6 +27,38 @@
     <meta name="twitter:image" content="https://www.znannia.online/logo.png">
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <style>
+        .videos {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-between;
+        }
+        .video-item {
+            box-sizing: border-box;
+            margin-bottom: 20px;
+        }
+        .thumbnail {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+        @media (min-width: 900px) {
+            .video-item {
+                width: calc(25% - 15px); /* 4 відео в рядку */
+            }
+        }
+        @media (max-width: 899px) {
+            .video-item {
+                width: calc(33.33% - 13.33px); /* 3 відео в рядку */
+            }
+        }
+        @media (max-width: 600px) {
+            .video-item {
+                width: calc(33.33% - 13.33px); /* 3 відео в рядку */
+            }
+        }
+    </style>
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
