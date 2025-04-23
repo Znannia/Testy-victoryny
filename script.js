@@ -75,24 +75,32 @@ fetchSubscribers();
 
 // Фільтрація Shorts
 async function filterNonShorts(videoIds) {
-    if (!videoIds.length) return [];
-    const response = await fetchWithKey(
-        `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoIds.join(',')}`
-    );
-    if (!response.ok) {
-        console.error('Помилка завантаження тривалості відео:', response.statusText);
-        return videoIds;
+    if (!videoIds.length) {
+        console.warn('Немає videoIds для фільтрації');
+        return [];
     }
-    const data = await response.json();
-    const nonShorts = [];
-    data.items.forEach((item, index) => {
-        const duration = item.contentDetails.duration;
-        const durationSeconds = parseDuration(duration);
-        if (durationSeconds >= 60) {
-            nonShorts.push(videoIds[index]);
+    try {
+        const response = await fetchWithKey(
+            `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoIds.join(',')}`
+        );
+        if (!response.ok) {
+            console.error('Помилка завантаження тривалості відео:', response.statusText);
+            return videoIds; // Повертаємо всі ID, якщо не вдалося перевірити тривалість
         }
-    });
-    return nonShorts;
+        const data = await response.json();
+        const nonShorts = [];
+        data.items.forEach((item, index) => {
+            const duration = item.contentDetails.duration;
+            const durationSeconds = parseDuration(duration);
+            if (durationSeconds >= 60) {
+                nonShorts.push(videoIds[index]);
+            }
+        });
+        return nonShorts;
+    } catch (error) {
+        console.error('Помилка фільтрації Shorts:', error);
+        return videoIds; // Повертаємо всі ID у разі помилки
+    }
 }
 
 // Парсинг тривалості
@@ -139,7 +147,7 @@ document.head.appendChild(schemaScript);
 async function renderVideos(videos, container, isLatest = false) {
     container.innerHTML = '';
     if (videos.length === 0) {
-        container.innerHTML = '<p>Немає доступних відео.</p>';
+        container.innerHTML = '<p>Немає доступних відео. Спробуйте оновити сторінку.</p>';
         return;
     }
 
@@ -291,6 +299,7 @@ async function fetchLatestVideos() {
     const cachedTime = localStorage.getItem(cacheTimeKey);
     const now = new Date().getTime();
 
+    // Очищаємо кеш, якщо він застарів або викликає помилки
     if (cachedVideos && cachedTime && now - cachedTime < cacheDuration) {
         const videos = JSON.parse(cachedVideos).filter(
             (video) =>
@@ -300,20 +309,27 @@ async function fetchLatestVideos() {
                 video.snippet.title !== 'Private video' &&
                 video.snippet.title !== 'Deleted video'
         );
-        await renderVideos(videos, latestVideosDiv, true);
-        localStorage.setItem(cacheKey, JSON.stringify(videos));
-        latestVideosDiv.classList.remove('loading');
-        return;
+        if (videos.length >= 3) {
+            await renderVideos(videos.slice(0, 3), latestVideosDiv, true);
+            latestVideosDiv.classList.remove('loading');
+            return;
+        }
+        console.warn('Кешовані відео невалідні або недостатньо. Очищаємо кеш.');
+        localStorage.removeItem(cacheKey);
+        localStorage.removeItem(cacheTimeKey);
     }
 
     try {
+        console.log('Завантажуємо останні відео...');
         const response = await fetchWithKey(
-            `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&maxResults=10&order=date&type=video`
+            `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&maxResults=20&order=date&type=video`
         );
         if (!response.ok) {
-            throw new Error('Не вдалося завантажити відео');
+            throw new Error(`Помилка API: ${response.status} ${response.statusText}`);
         }
         const data = await response.json();
+        console.log('API відповідь (останні відео):', data);
+
         let videos = data.items.filter(
             (item) =>
                 item.id &&
@@ -323,12 +339,18 @@ async function fetchLatestVideos() {
                 item.snippet.title !== 'Deleted video'
         );
 
+        if (videos.length === 0) {
+            console.warn('Немає доступних нових відео. Спробуємо завантажити з плейлистів.');
+            videos = await fetchFallbackVideos();
+        }
+
         const videoIds = videos.map((video) => video.id.videoId);
         const nonShortsIds = await filterNonShorts(videoIds);
         videos = videos.filter((video) => nonShortsIds.includes(video.id.videoId)).slice(0, 3);
 
         if (videos.length === 0) {
-            latestVideosDiv.innerHTML = '<p>Немає доступних відео.</p>';
+            console.error('Після фільтрації Shorts немає відео.');
+            latestVideosDiv.innerHTML = '<p>Немає доступних відео. Спробуйте пізніше.</p>';
             latestVideosDiv.classList.remove('loading');
             return;
         }
@@ -344,7 +366,47 @@ async function fetchLatestVideos() {
         latestVideosDiv.classList.remove('loading');
     }
 }
-fetchLatestVideos();
+
+// Резервна функція для завантаження відео з плейлистів
+async function fetchFallbackVideos() {
+    console.log('Виконуємо резервне завантаження відео з плейлистів...');
+    const videosToShow = [];
+    const categories = Object.keys(playlistIds);
+
+    for (const category of categories) {
+        const playlistId = playlistIds[category];
+        try {
+            const response = await fetchWithKey(
+                `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,status&playlistId=${playlistId}&maxResults=10`
+            );
+            if (!response.ok) {
+                console.warn(`Помилка завантаження плейлиста ${category}: ${response.status}`);
+                continue;
+            }
+            const data = await response.json();
+            const items = data.items
+                .filter(
+                    (item) =>
+                        item.snippet &&
+                        item.snippet.resourceId &&
+                        item.snippet.resourceId.videoId &&
+                        item.snippet.title !== 'Private video' &&
+                        item.snippet.title !== 'Deleted video' &&
+                        item.status &&
+                        item.status.privacyStatus === 'public'
+                )
+                .map((item) => ({
+                    id: { videoId: item.snippet.resourceId.videoId },
+                    snippet: item.snippet,
+                }));
+            videosToShow.push(...items);
+        } catch (error) {
+            console.error(`Помилка завантаження плейлиста ${category}:`, error);
+        }
+    }
+
+    return videosToShow.sort((a, b) => new Date(b.snippet.publishedAt) - new Date(a.snippet.publishedAt)).slice(0, 20);
+}
 
 // Завантаження випадкових відео
 async function fetchRandomVideos() {
@@ -359,6 +421,8 @@ async function fetchRandomVideos() {
     const cachedTime = localStorage.getItem(cacheTimeKey);
     const now = new Date().getTime();
 
+    const videoCount = window.innerWidth >= 900 ? 20 : 15; // 5 рядів: 4 відео (десктоп) або 3 відео (мобільні)
+
     if (cachedVideos && cachedTime && now - cachedTime < cacheDuration) {
         const videos = JSON.parse(cachedVideos).filter(
             (video) =>
@@ -368,21 +432,18 @@ async function fetchRandomVideos() {
                 video.snippet.title !== 'Private video' &&
                 video.snippet.title !== 'Deleted video'
         );
-        await renderVideos(videos, randomVideosDiv);
-        localStorage.setItem(cacheKey, JSON.stringify(videos));
-        randomVideosDiv.classList.remove('loading');
-        return;
+        if (videos.length >= videoCount) {
+            await renderVideos(videos.slice(0, videoCount), randomVideosDiv);
+            randomVideosDiv.classList.remove('loading');
+            return;
+        }
+        console.warn('Кешовані відео невалідні або недостатньо. Очищаємо кеш.');
+        localStorage.removeItem(cacheKey);
+        localStorage.removeItem(cacheTimeKey);
     }
 
     try {
-        const width = window.innerWidth;
-        let videoCount = 15;
-        if (width >= 600 && width < 900) {
-            videoCount = 12;
-        } else if (width < 600) {
-            videoCount = 9;
-        }
-
+        console.log('Завантажуємо випадкові відео...');
         const videosToShow = [];
         const categories = Object.keys(playlistIds);
 
@@ -417,7 +478,8 @@ async function fetchRandomVideos() {
 
         const shuffledVideos = filteredVideos.sort(() => Math.random() - 0.5).slice(0, videoCount);
         if (shuffledVideos.length === 0) {
-            randomVideosDiv.innerHTML = '<p>Немає доступних відео.</p>';
+            console.error('Немає доступних відео після фільтрації.');
+            randomVideosDiv.innerHTML = '<p>Немає доступних відео. Спробуйте пізніше.</p>';
             randomVideosDiv.classList.remove('loading');
             return;
         }
@@ -433,10 +495,13 @@ async function fetchRandomVideos() {
         randomVideosDiv.classList.remove('loading');
     }
 }
-fetchRandomVideos();
 
 // Показ/приховування списку категорій у футері
 document.getElementById('categories-btn').addEventListener('click', () => {
     const list = document.getElementById('categories-list');
     list.style.display = list.style.display === 'none' ? 'block' : 'none';
 });
+
+// Запускаємо завантаження
+fetchLatestVideos();
+fetchRandomVideos();
