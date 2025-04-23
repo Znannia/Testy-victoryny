@@ -50,7 +50,7 @@ async function fetchSubscribers() {
     const cachedTime = localStorage.getItem(cacheTimeKey);
 
     if (cachedSubscribers && cachedTime && currentTime - cachedTime < cacheDuration && !shouldUpdate) {
-        subscribersDiv.innerHTML = `Нас уже майже<br><span class="subscribers-count">${cachedSubscribers}</span>`;
+        subscribersDiv.innerHTML = `Нас уже понад<br><span class="subscribers-count">${cachedSubscribers}</span>`;
         return;
     }
 
