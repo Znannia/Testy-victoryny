@@ -35,12 +35,12 @@
         .videos {
             display: flex;
             flex-wrap: wrap;
-            gap: 20px;
+            gap: 30px; /* Збільшено відступи між контейнерами */
             justify-content: space-between;
         }
         .video-item {
             box-sizing: border-box;
-            margin-bottom: 20px;
+            margin-bottom: 30px; /* Збільшено вертикальний відступ */
         }
         .thumbnail {
             width: 100%;
@@ -101,22 +101,22 @@
         }
         @media (min-width: 1200px) {
             .video-item {
-                width: calc(20% - 16px); /* 5 відео в рядку */
+                width: calc(25% - 22.5px); /* 4 відео в рядку замість 5 */
             }
         }
         @media (min-width: 900px) and (max-width: 1199px) {
             .video-item {
-                width: calc(25% - 15px); /* 4 відео в рядку */
+                width: calc(33.33% - 20px); /* 3 відео в рядку замість 4 */
             }
         }
         @media (min-width: 600px) and (max-width: 899px) {
             .video-item {
-                width: calc(33.33% - 13.33px); /* 3 відео в рядку */
+                width: calc(33.33% - 20px); /* 3 відео в рядку */
             }
         }
         @media (max-width: 599px) {
             .video-item {
-                width: calc(50% - 10px); /* 2 відео в рядку */
+                width: calc(50% - 15px); /* 2 відео в рядку */
             }
         }
         @media (max-width: 400px) {
