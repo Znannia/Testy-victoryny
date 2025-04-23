@@ -1,7 +1,7 @@
 // Масив API-ключів для ротації
 const API_KEYS = [
-    'AIzaSyANIlHucfoyt3cMP5d06cV4uQX3Xx-XPLE',
-    'AIzaSyCILrgPfPm9NS6cgQHZhnXjcD7ab-GghDg',
+    'AIzaSyBIsnxOgHVW7AbYsYLZ6yMUF8f3PZFQFqc',
+    'AIzaSyBUIKh8TbT05XmLQTsQq9aXwf0RsiB-GR0',
 ];
 let currentKeyIndex = 0;
 
@@ -24,13 +24,13 @@ async function fetchWithKey(url) {
     try {
         const response = await fetch(`${url}&key=${API_KEYS[currentKeyIndex]}`);
         if (!response.ok && (response.status === 403 || response.status === 429)) {
-            console.warn(`Помилка ${response.status} для ключа ${API_KEYS[currentKeyIndex]}. Спробуємо наступний ключ.`);
+            console.warn(`Помилка ${response.status} для ключа ${currentKeyIndex}. Спробуємо наступний ключ.`);
             currentKeyIndex = (currentKeyIndex + 1) % API_KEYS.length;
             return fetchWithKey(url);
         }
         return response;
     } catch (error) {
-        console.error('Помилка запиту:', error, 'URL:', url, 'Ключ:', API_KEYS[currentKeyIndex]);
+        console.error('Помилка запиту:', error);
         throw error;
     }
 }
@@ -45,7 +45,7 @@ async function fetchSubscribers() {
     const currentTime = now.getTime();
     const hours = now.getHours();
 
-    const shouldUpdate = hours === 17 || !localStorage.getItem(cacheTimeKey);
+    const shouldUpdate = hours === 17;
     const cachedSubscribers = localStorage.getItem(cacheKey);
     const cachedTime = localStorage.getItem(cacheTimeKey);
 
@@ -75,17 +75,14 @@ fetchSubscribers();
 
 // Фільтрація Shorts
 async function filterNonShorts(videoIds) {
-    if (!videoIds.length) {
-        console.warn('Немає videoIds для фільтрації');
-        return [];
-    }
+    if (!videoIds.length) return [];
     try {
         const response = await fetchWithKey(
             `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoIds.join(',')}`
         );
         if (!response.ok) {
             console.error('Помилка завантаження тривалості відео:', response.statusText);
-            return videoIds; // Повертаємо всі ID, якщо не вдалося перевірити тривалість
+            return videoIds; // Якщо помилка, повертаємо всі відео без фільтрації
         }
         const data = await response.json();
         const nonShorts = [];
@@ -98,8 +95,8 @@ async function filterNonShorts(videoIds) {
         });
         return nonShorts;
     } catch (error) {
-        console.error('Помилка фільтрації Shorts:', error);
-        return videoIds; // Повертаємо всі ID у разі помилки
+        console.error('Помилка фільтрації шортсів:', error);
+        return videoIds; // У разі помилки повертаємо всі відео
     }
 }
 
@@ -124,19 +121,11 @@ function cleanDescription(description) {
 const videoSchema = {
     '@context': 'https://schema.org',
     '@type': 'VideoObject',
-    'name': 'Вікторини та тести - Знання для всіх',
-    'description': 'Сімейні тести та вікторини з географії, історії, Біблії, України та логіки. Дивіться останні та випадкові відео з YouTube-каналу Знання для всіх!',
+    'name': 'Вікторини та тести для всієї родини - Знання для всіх',
+    'description': 'Тести та вікторини з географії, історії, Біблії, України та логіки для всієї родини. Дивіться останні та випадкові відео з YouTube-каналу Знання для всіх!',
     'thumbnailUrl': 'https://img.youtube.com/vi/VIDEO_ID/maxresdefault.jpg',
-    'uploadDate': '2025-04-23',
-    'contentUrl': 'https://www.youtube.com/watch?v=VIDEO_ID',
-    'publisher': {
-        '@type': 'Organization',
-        'name': 'Знання для всіх',
-        'logo': {
-            '@type': 'ImageObject',
-            'url': 'https://www.znannia.online/logo.png'
-        }
-    }
+    'uploadDate': '2025-04-21',
+    'contentUrl': 'https://www.youtube.com/watch?v=VIDEO_ID'
 };
 const schemaScript = document.createElement('script');
 schemaScript.type = 'application/ld+json';
@@ -147,7 +136,7 @@ document.head.appendChild(schemaScript);
 async function renderVideos(videos, container, isLatest = false) {
     container.innerHTML = '';
     if (videos.length === 0) {
-        container.innerHTML = '<p>Немає доступних відео. Спробуйте оновити сторінку.</p>';
+        container.innerHTML = '<p>Немає доступних відео. Спробуйте пізніше.</p>';
         return;
     }
 
@@ -299,7 +288,6 @@ async function fetchLatestVideos() {
     const cachedTime = localStorage.getItem(cacheTimeKey);
     const now = new Date().getTime();
 
-    // Очищаємо кеш, якщо він застарів або викликає помилки
     if (cachedVideos && cachedTime && now - cachedTime < cacheDuration) {
         const videos = JSON.parse(cachedVideos).filter(
             (video) =>
@@ -309,27 +297,20 @@ async function fetchLatestVideos() {
                 video.snippet.title !== 'Private video' &&
                 video.snippet.title !== 'Deleted video'
         );
-        if (videos.length >= 3) {
-            await renderVideos(videos.slice(0, 3), latestVideosDiv, true);
-            latestVideosDiv.classList.remove('loading');
-            return;
-        }
-        console.warn('Кешовані відео невалідні або недостатньо. Очищаємо кеш.');
-        localStorage.removeItem(cacheKey);
-        localStorage.removeItem(cacheTimeKey);
+        await renderVideos(videos, latestVideosDiv, true);
+        localStorage.setItem(cacheKey, JSON.stringify(videos));
+        latestVideosDiv.classList.remove('loading');
+        return;
     }
 
     try {
-        console.log('Завантажуємо останні відео...');
         const response = await fetchWithKey(
-            `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&maxResults=20&order=date&type=video`
+            `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&maxResults=10&order=date&type=video`
         );
         if (!response.ok) {
-            throw new Error(`Помилка API: ${response.status} ${response.statusText}`);
+            throw new Error(`Помилка API: ${response.status} - ${response.statusText}`);
         }
         const data = await response.json();
-        console.log('API відповідь (останні відео):', data);
-
         let videos = data.items.filter(
             (item) =>
                 item.id &&
@@ -339,17 +320,11 @@ async function fetchLatestVideos() {
                 item.snippet.title !== 'Deleted video'
         );
 
-        if (videos.length === 0) {
-            console.warn('Немає доступних нових відео. Спробуємо завантажити з плейлистів.');
-            videos = await fetchFallbackVideos();
-        }
-
         const videoIds = videos.map((video) => video.id.videoId);
         const nonShortsIds = await filterNonShorts(videoIds);
         videos = videos.filter((video) => nonShortsIds.includes(video.id.videoId)).slice(0, 3);
 
         if (videos.length === 0) {
-            console.error('Після фільтрації Shorts немає відео.');
             latestVideosDiv.innerHTML = '<p>Немає доступних відео. Спробуйте пізніше.</p>';
             latestVideosDiv.classList.remove('loading');
             return;
@@ -361,52 +336,12 @@ async function fetchLatestVideos() {
         await renderVideos(videos, latestVideosDiv, true);
     } catch (error) {
         console.error('Помилка завантаження найновіших відео:', error);
-        latestVideosDiv.innerHTML = '<p>Помилка завантаження відео. Спробуйте пізніше.</p>';
+        latestVideosDiv.innerHTML = `<p>Помилка завантаження відео: ${error.message}. Спробуйте пізніше.</p>`;
     } finally {
         latestVideosDiv.classList.remove('loading');
     }
 }
-
-// Резервна функція для завантаження відео з плейлистів
-async function fetchFallbackVideos() {
-    console.log('Виконуємо резервне завантаження відео з плейлистів...');
-    const videosToShow = [];
-    const categories = Object.keys(playlistIds);
-
-    for (const category of categories) {
-        const playlistId = playlistIds[category];
-        try {
-            const response = await fetchWithKey(
-                `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,status&playlistId=${playlistId}&maxResults=10`
-            );
-            if (!response.ok) {
-                console.warn(`Помилка завантаження плейлиста ${category}: ${response.status}`);
-                continue;
-            }
-            const data = await response.json();
-            const items = data.items
-                .filter(
-                    (item) =>
-                        item.snippet &&
-                        item.snippet.resourceId &&
-                        item.snippet.resourceId.videoId &&
-                        item.snippet.title !== 'Private video' &&
-                        item.snippet.title !== 'Deleted video' &&
-                        item.status &&
-                        item.status.privacyStatus === 'public'
-                )
-                .map((item) => ({
-                    id: { videoId: item.snippet.resourceId.videoId },
-                    snippet: item.snippet,
-                }));
-            videosToShow.push(...items);
-        } catch (error) {
-            console.error(`Помилка завантаження плейлиста ${category}:`, error);
-        }
-    }
-
-    return videosToShow.sort((a, b) => new Date(b.snippet.publishedAt) - new Date(a.snippet.publishedAt)).slice(0, 20);
-}
+fetchLatestVideos();
 
 // Завантаження випадкових відео
 async function fetchRandomVideos() {
@@ -421,8 +356,6 @@ async function fetchRandomVideos() {
     const cachedTime = localStorage.getItem(cacheTimeKey);
     const now = new Date().getTime();
 
-    const videoCount = window.innerWidth >= 900 ? 20 : 15; // 5 рядів: 4 відео (десктоп) або 3 відео (мобільні)
-
     if (cachedVideos && cachedTime && now - cachedTime < cacheDuration) {
         const videos = JSON.parse(cachedVideos).filter(
             (video) =>
@@ -432,18 +365,21 @@ async function fetchRandomVideos() {
                 video.snippet.title !== 'Private video' &&
                 video.snippet.title !== 'Deleted video'
         );
-        if (videos.length >= videoCount) {
-            await renderVideos(videos.slice(0, videoCount), randomVideosDiv);
-            randomVideosDiv.classList.remove('loading');
-            return;
-        }
-        console.warn('Кешовані відео невалідні або недостатньо. Очищаємо кеш.');
-        localStorage.removeItem(cacheKey);
-        localStorage.removeItem(cacheTimeKey);
+        await renderVideos(videos, randomVideosDiv);
+        localStorage.setItem(cacheKey, JSON.stringify(videos));
+        randomVideosDiv.classList.remove('loading');
+        return;
     }
 
     try {
-        console.log('Завантажуємо випадкові відео...');
+        const width = window.innerWidth;
+        let videoCount = 15;
+        if (width >= 600 && width < 900) {
+            videoCount = 12;
+        } else if (width < 600) {
+            videoCount = 9;
+        }
+
         const videosToShow = [];
         const categories = Object.keys(playlistIds);
 
@@ -478,7 +414,6 @@ async function fetchRandomVideos() {
 
         const shuffledVideos = filteredVideos.sort(() => Math.random() - 0.5).slice(0, videoCount);
         if (shuffledVideos.length === 0) {
-            console.error('Немає доступних відео після фільтрації.');
             randomVideosDiv.innerHTML = '<p>Немає доступних відео. Спробуйте пізніше.</p>';
             randomVideosDiv.classList.remove('loading');
             return;
@@ -490,18 +425,15 @@ async function fetchRandomVideos() {
         await renderVideos(shuffledVideos, randomVideosDiv);
     } catch (error) {
         console.error('Помилка завантаження випадкових відео:', error);
-        randomVideosDiv.innerHTML = '<p>Помилка завантаження відео. Спробуйте пізніше.</p>';
+        randomVideosDiv.innerHTML = `<p>Помилка завантаження відео: ${error.message}. Спробуйте пізніше.</p>`;
     } finally {
         randomVideosDiv.classList.remove('loading');
     }
 }
+fetchRandomVideos();
 
 // Показ/приховування списку категорій у футері
 document.getElementById('categories-btn').addEventListener('click', () => {
     const list = document.getElementById('categories-list');
     list.style.display = list.style.display === 'none' ? 'block' : 'none';
 });
-
-// Запускаємо завантаження
-fetchLatestVideos();
-fetchRandomVideos();
