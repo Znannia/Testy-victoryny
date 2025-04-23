@@ -1,7 +1,7 @@
 // Масив API-ключів для ротації
 const API_KEYS = [
-    'AIzaSyANIlHucfoyt3cMP5d06cV4uQX3Xx-XPLE',
-    'AIzaSyCILrgPfPm9NS6cgQHZhnXjcD7ab-GghDg',
+    'AIzaSyBIsnxOgHVW7AbYsYLZ6yMUF8f3PZFQFqc',
+    'AIzaSyBUIKh8TbT05XmLQTsQq9aXwf0RsiB-GR0',
 ];
 let currentKeyIndex = 0;
 
@@ -9,14 +9,14 @@ const CHANNEL_ID = 'UC0usNaN5iwML35qPxASBDWQ';
 
 // Описи для категорій
 const categoryDescriptions = {
-    'Загальні знання': 'Перевірте свою ерудицію з тестами на загальні знання! Від історії до науки — ці вікторини ідеальні для дітей і дорослих, щоб весело провести час і дізнатися нове. Пройдіть тест прямо зараз!',
-    'Біблія': 'Зануртеся у світ Святого Письма з вікторинами про Біблію! Перевірте, як добре ви знаєте біблійні сюжети та персонажів. Пройдіть тест і поглибте свої знання!',
+    'Загальні знання': 'Перевірте свою ерудицію з тестами на загальні знання! Від історії до науки — ці вікторини ідеальні для дітей і дорослих, щоб весело провести час і дізнатися щось нове разом із родиною. Пройдіть тест прямо зараз!',
+    'Біблія': 'Зануртеся у світ Святого Письма з вікторинами про Біблію! Перевірте, як добре ви знаєте біблійні сюжети та персонажів разом із сім’єю. Пройдіть тест і поглибте свої знання!',
     'Не програєш': 'Готові до сміху та веселощів? Ці вікторини з несподіваними питаннями ідеальні для гри з друзями чи родиною. Дізнайтесь цікаве один про одного та пройдіть тест разом!',
-    'Що зайве': 'Потренуйте мозок із тестами на пошук зайвого чи подібного! Ці завдання покращують концентрацію та увагу. Прийміть виклик і перевірте свої навички!',
-    'Логіка': 'Перевірте свою кмітливість із тестами на логіку! Ці загадки — чудовий спосіб потренувати розум і весело провести час. Спробуйте розв’язати всі завдання!',
-    'Історія': 'Досліджуйте минуле з вікторинами про історію, міфи та легенди! Перевірте знання про давні цивілізації й таємничі сюжети. Пройдіть тест і дізнайтесь більше!',
-    'Географія': 'Мандруйте світом із географічними тестами! Від країн до природних чудес — ці вікторини підходять усім, хто любить географію. Перевірте свої знання вже зараз!',
-    'Україна': 'Поглибте знання про Україну з тестами про її історію та культуру! Дізнайтесь більше про традиції, події та видатних постатей. Пройдіть вікторину прямо зараз!'
+    'Що зайве': 'Потренуйте мозок із тестами на пошук зайвого чи подібного разом із родиною! Ці завдання покращують концентрацію та увагу. Прийміть виклик і перевірте свої навички!',
+    'Логіка': 'Перевірте свою кмітливість із тестами на логіку разом із сім’єю! Ці загадки — чудовий спосіб потренувати розум і весело провести час. Спробуйте розв’язати всі завдання!',
+    'Історія': 'Досліджуйте минуле з вікторинами про історію, міфи та легенди разом із родиною! Перевірте знання про давні цивілізації й таємничі сюжети. Пройдіть тест і дізнайтесь більше!',
+    'Географія': 'Мандруйте світом із географічними тестами разом із сім’єю! Від країн до природних чудес — ці вікторини підходять усім, хто любить географію. Перевірте свої знання вже зараз!',
+    'Україна': 'Поглибте знання про Україну з тестами про її історію та культуру разом із родиною! Дізнайтесь більше про традиції, події та видатних постатей. Пройдіть вікторину прямо зараз!'
 };
 
 // Мапа плейлистів
@@ -66,16 +66,16 @@ const metaDescription = document.querySelector('meta[name="description"]');
 if (metaDescription) {
     metaDescription.setAttribute(
         'content',
-        `Сімейні вікторини та тести з ${category || 'різних тем'} на YouTube-каналі Знання для всіх. Перевірте знання з географії, історії, Біблії!`
+        categoryDescriptions[category] || 'Дивіться вікторини та тести з категорії на YouTube-каналі Знання для всіх. Цікаво для всієї родини!'
     );
 }
 const existingKeywords = document.querySelector('meta[name="keywords"]');
 if (existingKeywords) {
-    existingKeywords.setAttribute('content', `знання для всіх, сімейні вікторини, тести, ${category || 'категорії'}, освіта, Україна, НМТ 2025`);
+    existingKeywords.setAttribute('content', `знання для всіх, вікторини, тести, ${category || 'категорії'}, освіта, Україна, НМТ 2025`);
 } else {
     const metaKeywords = document.createElement('meta');
     metaKeywords.name = 'keywords';
-    metaKeywords.content = `знання для всіх, сімейні вікторини, тести, ${category || 'категорії'}, освіта, Україна, НМТ 2025`;
+    metaKeywords.content = `знання для всіх, вікторини, тести, ${category || 'категорії'}, освіта, Україна, НМТ 2025`;
     document.head.appendChild(metaKeywords);
 }
 const canonicalLink = document.createElement('link');
@@ -97,18 +97,10 @@ const videoSchema = {
     '@context': 'https://schema.org',
     '@type': 'VideoObject',
     'name': `Вікторини з ${category || 'Категорії'} - Знання для всіх`,
-    'description': `Сімейні вікторини та тести з ${category || 'різних тем'} на YouTube-каналі Знання для всіх. Перевірте знання з географії, історії, Біблії та інших тем!`,
+    'description': categoryDescriptions[category] || 'Цікаві тести та вікторини для всієї родини!',
     'thumbnailUrl': 'https://img.youtube.com/vi/VIDEO_ID/maxresdefault.jpg',
-    'uploadDate': '2025-04-23',
-    'contentUrl': 'https://www.youtube.com/watch?v=VIDEO_ID',
-    'publisher': {
-        '@type': 'Organization',
-        'name': 'Знання для всіх',
-        'logo': {
-            '@type': 'ImageObject',
-            'url': 'https://www.znannia.online/logo.png'
-        }
-    }
+    'uploadDate': '2025-04-21',
+    'contentUrl': 'https://www.youtube.com/watch?v=VIDEO_ID'
 };
 const schemaScript = document.createElement('script');
 schemaScript.type = 'application/ld+json';
@@ -120,13 +112,13 @@ async function fetchWithKey(url) {
     try {
         const response = await fetch(`${url}&key=${API_KEYS[currentKeyIndex]}`);
         if (!response.ok && (response.status === 403 || response.status === 429)) {
-            console.warn(`Помилка ${response.status} для ключа ${API_KEYS[currentKeyIndex]}. Спробуємо наступний ключ.`);
+            console.warn(`Помилка ${response.status} для ключа ${currentKeyIndex}. Спробуємо наступний ключ.`);
             currentKeyIndex = (currentKeyIndex + 1) % API_KEYS.length;
             return fetchWithKey(url);
         }
         return response;
     } catch (error) {
-        console.error('Помилка запиту:', error, 'URL:', url, 'Ключ:', API_KEYS[currentKeyIndex]);
+        console.error('Помилка запиту:', error);
         throw error;
     }
 }
@@ -141,7 +133,7 @@ async function fetchSubscribers() {
     const currentTime = now.getTime();
     const hours = now.getHours();
 
-    const shouldUpdate = hours === 17 || !localStorage.getItem(cacheTimeKey);
+    const shouldUpdate = hours === 17;
     const cachedSubscribers = localStorage.getItem(cacheKey);
     const cachedTime = localStorage.getItem(cacheTimeKey);
 
@@ -179,23 +171,28 @@ async function filterNonShorts(videoIds) {
         console.log('Пропускаємо фільтр Shorts для Логіки');
         return videoIds;
     }
-    const response = await fetchWithKey(
-        `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoIds.join(',')}`
-    );
-    if (!response.ok) {
-        console.error('Помилка API:', response.status, response.statusText);
+    try {
+        const response = await fetchWithKey(
+            `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoIds.join(',')}`
+        );
+        if (!response.ok) {
+            console.error('Помилка API:', response.status, response.statusText);
+            return videoIds;
+        }
+        const data = await response.json();
+        const nonShorts = [];
+        data.items.forEach((item, index) => {
+            const duration = item.contentDetails.duration;
+            const durationSeconds = parseDuration(duration);
+            if (durationSeconds >= 60) {
+                nonShorts.push(videoIds[index]);
+            }
+        });
+        return nonShorts;
+    } catch (error) {
+        console.error('Помилка фільтрації шортсів:', error);
         return videoIds;
     }
-    const data = await response.json();
-    const nonShorts = [];
-    data.items.forEach((item, index) => {
-        const duration = item.contentDetails.duration;
-        const durationSeconds = parseDuration(duration);
-        if (durationSeconds >= 60) {
-            nonShorts.push(videoIds[index]);
-        }
-    });
-    return nonShorts;
 }
 
 // Парсинг тривалості відео
@@ -440,7 +437,7 @@ async function fetchCategoryVideos() {
         await renderVideos(videos, videosDiv);
     } catch (error) {
         console.error('Помилка завантаження відео:', error);
-        videosDiv.innerHTML = '<p>Помилка завантаження відео. Спробуйте пізніше.</p>';
+        videosDiv.innerHTML = `<p>Помилка завантаження відео: ${error.message}. Спробуйте пізніше.</p>`;
     } finally {
         videosDiv.classList.remove('loading');
     }
